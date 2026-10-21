@@ -22,7 +22,10 @@
         }
     </style>
     <div class="example-wrapper">
-        <form id="title-form" data-api-url="{{ path('api_title_index') }}">
+        <form id="title-form"
+              data-api-url="{{ path('api_title_index') }}"
+              data-edit-url="{{ path('app_title_edit', {id: 'ID'}) }}"
+              data-method="POST">
             <input name="name" placeholder="Naam" required>
             <select name="type" required>
                 <option value="film">Film</option>

@@ -38,6 +38,19 @@ final class TitleController extends AbstractController
         return $this->json($title, 201);
     }
 
+    #[Route("/{id}", name: 'api_title_update', methods: ['PUT'])]
+    public function update(Title $title, #[MapRequestPayload] TitleInput $input, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $title->setName($input->name);
+        $title->setType($input->type);
+        $title->setYear($input->year);
+        $title->setWatched($input->watched);
+
+        $entityManager->flush();
+
+        return $this->json($title);
+    }
+
     #[Route("/{id}", name: 'api_title_delete', methods: ['DELETE'])]
     public function delete(Title $title, EntityManagerInterface $entityManager): JsonResponse
     {

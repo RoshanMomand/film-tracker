@@ -2,59 +2,65 @@ const form = document.getElementById('title-form');
 const list = document.getElementById('title-list');
 const error = document.getElementById('error');
 const apiUrl = form.dataset.apiUrl;
+const method = form.dataset.method;
+
 async function fetchTitles() {
-    try {
-        const response = await fetch(apiUrl);
+    const response = await fetch(form.dataset.apiUrl);
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const titles = await response.json();
+    if (!response.ok) {
+        const data = await response.json();
+        error.textContent = data.detail;
+        return;
+    }
 
-        list.innerHTML = '';
-        for (const title of titles) {
-            const item = document.createElement('li');
-            item.textContent = `${title.name} (${title.year}) - ${title.type} - ${title.watched ? 'Gezien' : 'Niet gezien'}`;
+    const titles = await response.json();
+    console.log(titles);
 
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Verwijderen';
-            deleteButton.addEventListener('click', () => deleteTitles(title.id));
+    list.innerHTML = '';
+    for (const title of titles) {
+        const item = document.createElement('li');
+        item.textContent = `${title.name} (${title.year}) - ${title.type} - ${title.watched ? 'Gezien' : 'Niet gezien'} `;
 
-            item.appendChild(deleteButton);
-            list.append(item);
-        }
+        const editLink = document.createElement('a');
+        editLink.textContent = 'Bewerken';
+        editLink.href = form.dataset.editUrl.replace('ID', title.id);
 
-    } catch (err) {
-        error.textContent = `Error fetching titles: ${err.message}`;
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Verwijderen';
+        deleteButton.addEventListener('click', () => deleteTitle(title.id));
+
+        item.append(editLink, ' ', deleteButton);
+        list.append(item);
     }
 }
 
-async function deleteTitles(id) {
+async function deleteTitle(id) {
     await fetch(`${apiUrl}/${id}`, {method: 'DELETE'});
     fetchTitles();
 }
 
 form.addEventListener('submit', async event => {
     event.preventDefault();
-    error.textContent = '';
 
-    const response = await fetch(apiUrl, {
-        method: 'POST',
+    const response = await fetch(form.dataset.apiUrl, {
+        method: method || 'POST',
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
         body: JSON.stringify({
             name: form.name.value,
             type: form.type.value,
             year: Number(form.year.value),
-            watched: Boolean(form.watched.checked),
+            watched: form.watched.checked,
         }),
     });
+
     if (!response.ok) {
         const data = await response.json();
-        error.textContent = data.detail || 'Er is een fout opgetreden';
+        error.textContent = data.detail;
         return;
     }
 
     form.reset();
+    error.textContent = '';
     fetchTitles();
 });
 

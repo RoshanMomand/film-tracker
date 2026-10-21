@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title.name }} bewerken{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/edit.js') }}" defer></script>
+{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+    </style>
+    <div class="example-wrapper">
+        <h1>{{ title.name }} bewerken</h1>
+
+        <form id="edit-form"
+              data-api-url="{{ path('api_title_update', {id: title.id}) }}"
+              data-home-url="{{ path('app_home') }}"
+              data-method="PUT">
+            <input name="name" placeholder="Naam" value="{{ title.name }}" required>
+            <select name="type" required>
+                <option value="film" {{ title.type == 'film' ? 'selected' }}>Film</option>
+                <option value="serie" {{ title.type == 'serie' ? 'selected' }}>Serie</option>
+            </select>
+            <input name="year" type="number" placeholder="Jaartal" value="{{ title.year }}" required>
+            <label><input name="watched" type="checkbox" {{ title.watched ? 'checked' }}> Gezien</label>
+            <button type="submit">Opslaan</button>
+        </form>
+        <p id="error"></p>
+
+        <a href="{{ path('app_home') }}">Terug naar overzicht</a>
+    </div>
+{% endblock %}
