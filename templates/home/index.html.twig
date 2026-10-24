@@ -10,17 +10,30 @@
 {% block body %}
     <style>
         .example-wrapper {
-            margin: 1em auto;
+            /*margin: 1em auto;*/
             max-width: 800px;
-            width: 95%;
             font: 18px/1.5 sans-serif;
+            margin: 0 auto;
         }
 
         .example-wrapper code {
             background: #F5F5F5;
             padding: 2px 6px;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1em;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 6px 8px;
+            border-bottom: 1px solid #ddd;
+        }
     </style>
+
     <div class="example-wrapper">
         <form id="title-form"
               data-api-url="{{ path('api_title_index') }}"
@@ -37,7 +50,29 @@
         </form>
         <p id="error"></p>
 
-        <ul id="title-list"></ul>
+        {# Filter function with select #}
+        <select id="filter-type">
+            <option value="">Alle types</option>
+            <option value="film">Films</option>
+            <option value="serie">Series</option>
+            <option value="watched">Gezien</option>
+        </select>
+
+        {# Search function based on the Title #}
+        <input id="search-title" type="text" placeholder="Zoek naar titel...">
+
+        <table>
+            <thead>
+            <tr>
+                <th>Naam</th>
+                <th>Type</th>
+                <th>Jaartal</th>
+                <th>Gezien</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="title-list"></tbody>
+        </table>
     </div>
 
 {% endblock %}

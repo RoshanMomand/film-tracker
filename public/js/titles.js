@@ -3,6 +3,10 @@ const list = document.getElementById('title-list');
 const error = document.getElementById('error');
 const apiUrl = form.dataset.apiUrl;
 const method = form.dataset.method;
+const searchInput = document.getElementById('search-title');
+const filterButton = document.getElementById('filter-type');
+let allTitles = [];
+
 
 async function fetchTitles() {
     const response = await fetch(form.dataset.apiUrl);
@@ -14,12 +18,20 @@ async function fetchTitles() {
     }
 
     const titles = await response.json();
-    console.log(titles);
+    allTitles = titles;
 
+    renderTitles(titles);
+}
+
+function renderTitles(titles) {
     list.innerHTML = '';
+
     for (const title of titles) {
-        const item = document.createElement('li');
-        item.textContent = `${title.name} (${title.year}) - ${title.type} - ${title.watched ? 'Gezien' : 'Niet gezien'} `;
+        const row = list.insertRow();
+        row.insertCell().textContent = title.name;
+        row.insertCell().textContent = title.type;
+        row.insertCell().textContent = title.year;
+        row.insertCell().textContent = title.watched ? 'Gezien' : 'Niet gezien';
 
         const editLink = document.createElement('a');
         editLink.textContent = 'Bewerken';
@@ -29,9 +41,20 @@ async function fetchTitles() {
         deleteButton.textContent = 'Verwijderen';
         deleteButton.addEventListener('click', () => deleteTitle(title.id));
 
-        item.append(editLink, ' ', deleteButton);
-        list.append(item);
+        row.insertCell().append(editLink, ' ', deleteButton);
     }
+}
+
+function searchTitles(event) {
+    const searchTerm = event.target.value.toLowerCase().trim();
+    const filteredTitles = allTitles.filter(title => title.name.toLowerCase().includes(searchTerm));
+
+    if (filteredTitles.length === 0) {
+        renderTitles(allTitles);
+        return;
+    }
+
+    renderTitles(filteredTitles);
 }
 
 async function deleteTitle(id) {
@@ -63,5 +86,30 @@ form.addEventListener('submit', async event => {
     error.textContent = '';
     fetchTitles();
 });
+
+if (searchInput) {
+    searchInput.addEventListener('input', searchTitles);
+}
+if (filterButton) {
+    filterButton.addEventListener('change', async event => {
+        const selectedType = event.target.value;
+
+        switch (selectedType) {
+            case 'film':
+            case 'serie':
+                const filteredTitles = allTitles.filter(title => title.type === selectedType);
+                renderTitles(filteredTitles);
+                break;
+            case 'watched':
+                const watchedTitles = allTitles.filter(title => title.watched === true);
+                renderTitles(watchedTitles);
+                break;
+            default:
+                renderTitles(allTitles);
+                break;
+        }
+
+    });
+}
 
 fetchTitles();
